@@ -19,10 +19,12 @@ export const Products = () => {
   }
 
   return (
-    <ProductGridContainer>
-      {products.map(({name, imageUrl, id}) => {
-        return <Product key={id} name={name} imageUrl={imageUrl}/>
-      })}
+    <>
+      <ProductGridContainer>
+        {products.map(({name, imageUrl, id}) => {
+          return <Product key={id} name={name} imageUrl={imageUrl}/>
+        })}
+      </ProductGridContainer>
 
       <Stack spacing={2}>
         <Pagination
@@ -37,13 +39,29 @@ export const Products = () => {
           )}
         />
       </Stack>
-    </ProductGridContainer>
+    </>
   )
 }
 
 const ProductGridContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  @media(max-width: 1870px) {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  }
+  @media(max-width: 1400px) {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+  @media(max-width: 900px) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  @media(max-width: 700px) {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media(max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const Product: React.FC<{ name: string, imageUrl: string }> = ({imageUrl, name}) => {
