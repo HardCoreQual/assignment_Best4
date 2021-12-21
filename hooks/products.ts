@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import {OriginProductType} from "../pages/api/products";
-import {useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {nanoid} from "nanoid";
 import {Product} from "../types/products";
 import {useInitContext} from "./context";
@@ -50,6 +50,30 @@ export const useFilteredProducts = () => {
   return {
     products: filteredProducts,
     error,
+  }
+}
+
+export const useFilteredProductsWithPagination = () => {
+  const [page, setPage] = useState(1);
+  const { products, error } = useFilteredProducts();
+
+  useEffect(() => {
+    setPage(1);
+  }, [products]);
+
+  const data = useMemo(() => {
+    const pageLimit = 24;
+    return {
+      countPages: Math.ceil((products?.length || 0) / pageLimit),
+      products: products && products.slice((page - 1) * pageLimit, page * pageLimit),
+    }
+  }, [page, products]);
+
+  return {
+    error,
+    page,
+    setPage,
+    ...data,
   }
 }
 

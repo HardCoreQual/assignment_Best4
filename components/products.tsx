@@ -1,10 +1,15 @@
-import {useFilteredProducts} from "../hooks/products";
+import {useFilteredProductsWithPagination} from "../hooks/products";
 import React from "react";
 import Image from "next/image";
 import styled, {css} from "styled-components";
+import Pagination from '@mui/material/Pagination';
+import PaginationItem from '@mui/material/PaginationItem';
+import Stack from '@mui/material/Stack';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 export const Products = () => {
-  const {products, error} = useFilteredProducts();
+  const {products, error, countPages, setPage, page} = useFilteredProductsWithPagination();
 
   if (error) {
     return <div>Failed load products</div>
@@ -18,6 +23,20 @@ export const Products = () => {
       {products.map(({name, imageUrl, id}) => {
         return <Product key={id} name={name} imageUrl={imageUrl}/>
       })}
+
+      <Stack spacing={2}>
+        <Pagination
+          count={countPages}
+          page={page}
+          onChange={(e, page) => setPage(page)}
+          renderItem={(item) => (
+            <PaginationItem
+              components={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+              {...item}
+            />
+          )}
+        />
+      </Stack>
     </ProductGridContainer>
   )
 }
