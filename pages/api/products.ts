@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import miistaProducts from '../../data/miista-export.json';
 
 
-export type ProductType = {
+export type OriginProductType = {
   node: {
     name: string,
     node_locale: string,
@@ -36,7 +36,7 @@ const products = miistaProducts.data.allContentfulProductPage.edges as [];
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ProductType[]>
+  res: NextApiResponse<OriginProductType[]>
 ) {
   res.status(200).json(products)
 }

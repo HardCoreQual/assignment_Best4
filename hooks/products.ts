@@ -1,14 +1,18 @@
 import useSWR from "swr";
-import {ProductType} from "../pages/api/products";
+import {OriginProductType} from "../pages/api/products";
 import {useMemo} from "react";
 import {nanoid} from "nanoid";
+import {Product} from "../types/products";
+import {useInitContext} from "./context";
+import {FilterContext, Selected} from "../context/filterContext";
 
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
-export const useProducts = () => {
-  const {data, error} = useSWR<ProductType[]>('/api/products', fetcher);
 
-  const products = useMemo(() => {
+export const useProducts = () => {
+  const {data, error} = useSWR<OriginProductType[]>('/api/products', fetcher);
+
+  const products: Product[] | undefined = useMemo(() => {
     if (!data) return undefined;
     return data
       .map(e => e.node)
@@ -18,12 +22,33 @@ export const useProducts = () => {
         imageUrl: 'https:' + e.thumbnailImage.file.url,
         tags: e.categoryTags,
         color: e.colorFamily,
-        price: e.shopifyProductEu.variants.edges[0].node.price,
-      }));
+        price: +e.shopifyProductEu.variants.edges[0].node.price,
+      } as Product));
   }, [data]);
 
   return {
     products,
+    error,
+  }
+}
+
+const hasColor = (colors: string[]) => <T extends Record<'color', Product['color']>>(p: T) => !colors.length || (p.color?.length && colors.includes(p.color[0].name));
+const hasTag = (tags: string[]) => <T extends Record<'tags', Product['tags']>>(p: T) => !tags.length || Boolean(tags.filter(t => p.tags?.includes(t)).length);
+const getSelectedArr = (selected: Selected) => Object.entries(selected).filter(([,value]) => value).map(([key]) => key);
+
+export const useFilteredProducts = () => {
+  const { products, error } = useProducts();
+  const { selectedColors, selectedTags } = useInitContext(FilterContext);
+
+  const filteredProducts = useMemo(() => {
+    if (!products) return undefined;
+    return products
+      .filter(hasColor(getSelectedArr(selectedColors)))
+      .filter(hasTag(getSelectedArr(selectedTags)));
+  }, [ products, selectedTags, selectedColors ]);
+
+  return {
+    products: filteredProducts,
     error,
   }
 }

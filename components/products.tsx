@@ -1,10 +1,10 @@
-import {useProducts} from "./hook";
+import {useFilteredProducts} from "../hooks/products";
 import React from "react";
 import Image from "next/image";
 import styled, {css} from "styled-components";
 
 export const Products = () => {
-  const {products, error} = useProducts();
+  const {products, error} = useFilteredProducts();
 
   if (error) {
     return <div>Failed load products</div>
