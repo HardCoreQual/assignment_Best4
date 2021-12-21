@@ -34,18 +34,23 @@ export const useProducts = () => {
 
 const hasColor = (colors: string[]) => <T extends Record<'color', Product['color']>>(p: T) => !colors.length || (p.color?.length && colors.includes(p.color[0].name));
 const hasTag = (tags: string[]) => <T extends Record<'tags', Product['tags']>>(p: T) => !tags.length || Boolean(tags.filter(t => p.tags?.includes(t)).length);
-const getSelectedArr = (selected: Selected) => Object.entries(selected).filter(([,value]) => value).map(([key]) => key);
+const getSelected = (selected: Selected) => Object.entries(selected).filter(([,value]) => value).map(([key]) => key);
+
+const moreThatMinPrice = (minPrice: number | null) => <T extends Record<'price', Product['price']>>(p: T) => !minPrice || minPrice <= p.price;
+const lessThatMaxPrice = (maxPrice: number | null) => <T extends Record<'price', Product['price']>>(p: T) => !maxPrice || maxPrice >= p.price;
 
 export const useFilteredProducts = () => {
   const { products, error } = useProducts();
-  const { selectedColors, selectedTags } = useInitContext(FilterContext);
+  const { selectedColors, selectedTags, priceInterval } = useInitContext(FilterContext);
 
   const filteredProducts = useMemo(() => {
     if (!products) return undefined;
     return products
-      .filter(hasColor(getSelectedArr(selectedColors)))
-      .filter(hasTag(getSelectedArr(selectedTags)));
-  }, [ products, selectedTags, selectedColors ]);
+      .filter(moreThatMinPrice(priceInterval.min))
+      .filter(lessThatMaxPrice(priceInterval.max))
+      .filter(hasColor(getSelected(selectedColors)))
+      .filter(hasTag(getSelected(selectedTags)));
+  }, [ products, selectedTags, selectedColors, priceInterval ]);
 
   return {
     products: filteredProducts,
